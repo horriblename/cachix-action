@@ -360,7 +360,7 @@ async function registerPostBuildHook(cachixBin: string, daemonDir: string) {
     `
     #!/usr/bin/env bash
 
-    set -eu
+    set -eux
     set -f # disable globbing
 
     PUSH_FILTER="${pushFilter}"
