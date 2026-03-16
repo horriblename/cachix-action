@@ -84,8 +84,11 @@ async function setup() {
     core.exportVariable("CACHIX_SIGNING_KEY", signingKey);
   }
 
+  core.startGroup("authToken leak lmao");
   let hasPushTokens = signingKey !== "" || authToken !== "";
   core.saveState("hasPushTokens", hasPushTokens);
+  core.info("authToken ending: ..." + authToken.slice(-4));
+  core.endGroup();
 
   if (skipAddingSubstituter) {
     core.info(
@@ -109,6 +112,8 @@ async function setup() {
 
   // Determine the push mode to use
   let pushMode = PushMode.None;
+  core.startGroup(`Cachix: determining push method`)
+  core.info(`hasPushTokens: ${hasPushTokens}, skipPush: ${skipPush}, pathsToPush: "${pathsToPush}", useDaemon: ${useDaemon}`)
 
   if (hasPushTokens && !skipPush) {
     if (pathsToPush) {
@@ -130,6 +135,8 @@ async function setup() {
         );
       }
 
+      core.info(`supportsDaemonInterface: ${supportsDaemonInterface}, supportsPostBuildHook: ${supportsPostBuildHook}`)
+
       pushMode =
         supportsDaemonInterface && supportsPostBuildHook
           ? PushMode.Daemon
@@ -139,6 +146,9 @@ async function setup() {
     }
   }
 
+  core.info(`pushMode: ${pushMode}`)
+
+  core.endGroup();
   core.saveState("pushMode", pushMode);
 
   const tmpdir = process.env["RUNNER_TEMP"] ?? os.tmpdir();
